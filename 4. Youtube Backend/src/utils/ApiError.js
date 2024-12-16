@@ -13,8 +13,8 @@ class ApiError extends Error {
     constructor(
         statusCode,
         message = "Something went wrong",
-        error = [],
-        statck = ""
+        errors = [],
+        stack = ""
     ){
         // Call parent Error constructor with message
         super(message)
@@ -27,9 +27,9 @@ class ApiError extends Error {
         this.errors = errors         // Array of detailed errors
 
         // Handle stack trace
-        if(statck) {
+        if(stack) {
             // Use provided custom stack trace if available
-            this.stack = statck
+            this.stack = stack
         }
         else {
             // Capture and set standard stack trace
@@ -42,3 +42,5 @@ class ApiError extends Error {
 // 1. 'error' parameter is used but 'errors' property is set
 // 2. 'statck' is misspelled (should be 'stack')
 // 3. 'this.statusCode' line is incomplete (missing assignment)
+
+export {ApiError}
