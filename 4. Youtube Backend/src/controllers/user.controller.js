@@ -7,26 +7,26 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 // method for generation of access and refresh tokens (JWT)
 
-const generateAccessAndRefreshTokens = async(userId)=> {
-
+const generateAccessAndRefereshTokens = async(userId) =>{ 
     try {
+        
+        
         const user = await User.findById(userId)
         const accessToken = user.generateAccessToken()
         const refreshToken = user.generateRefreshToken()
-
+      
         user.refreshToken = refreshToken
-        await user.save({validateBeforeSave: false})
+        await user.save({ validateBeforeSave: false })
 
         return {accessToken, refreshToken}
 
 
-
-        
     } catch (error) {
-        throw new ApiError(500, "Something went wrong while generating refresh and access token")
+        throw new ApiError(500, "Something went wrong while generating referesh and access token")
     }
-
 }
+
+
 
 const registerUser = asyncHandler( async (req, res) => {
     // get user details from frontend
@@ -103,43 +103,45 @@ const registerUser = asyncHandler( async (req, res) => {
 } )
 
 
-const loginUser = asyncHandler( async (req, res) => {
+const loginUser = asyncHandler(async (req, res) =>{
     // req body -> data
     // username or email
-    // find the user
-    // password check
-    // access and refresh tokens
-    // send cookie
-
+    //find the user
+    //password check
+    //access and referesh token
+    //send cookie
 
     const {email, username, password} = req.body
-    if(!username || !email) {
+    console.log(email);
+
+    if (!username && !email) {
         throw new ApiError(400, "username or email is required")
     }
+    
+    // Here is an alternative of above code based on logic discussed in video:
+    // if (!(username || email)) {
+    //     throw new ApiError(400, "username or email is required")
+        
+    // }
 
     const user = await User.findOne({
         $or: [{username}, {email}]
     })
 
-    if(!user) {
-        throw new ApiError(404, "User does not exist ")
+    if (!user) {
+        throw new ApiError(404, "User does not exist")
     }
 
-    // User is a mongodb User object & user is a javascript object (for developing business logic)
-    
-    const isPasswordValid = await user.isPasswordValid(password)
+   const isPasswordValid = await user.isPasswordCorrect(password)
 
-    if( !isPasswordValid){
-        throw new ApiError("401", "Invalid user credentials")
+   if (!isPasswordValid) {
+    throw new ApiError(401, "Invalid user credentials")
     }
 
-    const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
+   const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id)
 
 
-    const loggedInUser = await User.findById(user.id).select("-passsword -refreshToken")
-
-
-    // cookies
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
     const options = {
         httpOnly: true,
@@ -152,14 +154,14 @@ const loginUser = asyncHandler( async (req, res) => {
     .cookie("refreshToken", refreshToken, options)
     .json(
         new ApiResponse(
-            200,
+            200, 
             {
-                user: loggedInUser, accessToken,
-                refreshToken
+                user: loggedInUser, accessToken, refreshToken
             },
-            "User logged in Successfully"
+            "User logged In Successfully"
         )
     )
+
 })
 
 const logoutUser = asyncHandler( async(req, res) => {
