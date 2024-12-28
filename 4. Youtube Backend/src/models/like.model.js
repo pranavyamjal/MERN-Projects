@@ -20,7 +20,7 @@ const likeScheme = new Schema ({
 
     likedBy: {
         type: Schema.Types.ObjectId,
-        ref:"Like"
+        ref:"User"
     }
 
 }, {timestamps: true})
